@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Dashboard - Home</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Link Dashboard</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="addlink.html">Add Link</a>
+    </nav>
+    <h2>Favorite Links</h2>
+    <ul id="favoriteLinkList" ondrop="drop(event)" ondragover="allowDrop(event)"></ul>
+    <h2>All Links</h2>
+    <ul id="linkList" ondrop="drop(event)" ondragover="allowDrop(event)"></ul>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderLinks();
+    });
+
+    function renderLinks() {
+      var linkList = document.getElementById("linkList");
+      var favoriteLinkList = document.getElementById("favoriteLinkList");
+      linkList.innerHTML = "";
+      favoriteLinkList.innerHTML = "";
+      var links = JSON.parse(localStorage.getItem("links")) || [];
+      
+      links.forEach(function(link) {
+        var listItem = document.createElement("li");
+        var anchor = document.createElement("a");
+        anchor.href = link.url;
+        anchor.textContent = link.title;
+        anchor.target = "_blank"; // Open link in new tab
+        anchor.draggable = true;
+        anchor.addEventListener("dragstart", function(event) {
+          event.dataTransfer.setData("text/plain", JSON.stringify(link));
+        });
+        listItem.appendChild(anchor);
+
+        var favoriteIcon = document.createElement("span");
+        favoriteIcon.innerHTML = "&#9733;";
+        favoriteIcon.classList.add("favorite-icon");
+        if (link.favorite) {
+          favoriteIcon.classList.add("favorite");
+          favoriteLinkList.appendChild(listItem);
+        } else {
+          linkList.appendChild(listItem);
+        }
+
+        favoriteIcon.dataset.url = link.url;
+        favoriteIcon.addEventListener("click", toggleFavorite);
+        listItem.appendChild(favoriteIcon);
+      });
+    }
+
+    function toggleFavorite(event) {
+      var url = event.target.dataset.url;
+      var links = JSON.parse(localStorage.getItem("links")) || [];
+      var linkIndex = links.findIndex(function(link) {
+        return link.url === url;
+      });
+
+      if (linkIndex !== -1) {
+        links[linkIndex].favorite = !links[linkIndex].favorite;
+        localStorage.setItem("links", JSON.stringify(links));
+        renderLinks();
+      }
+    }
+
+    function allowDrop(event) {
+      event.preventDefault(); // Allow dropping
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      var linkData = JSON.parse(event.dataTransfer.getData("text/plain"));
+      var targetListId = event.target.id;
+      var targetList = document.getElementById(targetListId);
+      var listItem = document.createElement("li");
+      var anchor = document.createElement("a");
+      anchor.href = linkData.url;
+      anchor.textContent = linkData.title;
+      anchor.draggable = true;
+      anchor.addEventListener("dragstart", function(event) {
+        event.dataTransfer.setData("text/plain", JSON.stringify(linkData));
+      });
+      listItem.appendChild(anchor);
+
+      var favoriteIcon = document.createElement("span");
+      favoriteIcon.innerHTML = "&#9733;";
+      favoriteIcon.classList.add("favorite-icon");
+      if (linkData.favorite) {
+        favoriteIcon.classList.add("favorite");
+      }
+      favoriteIcon.dataset.url = linkData.url;
+      favoriteIcon.addEventListener("click", toggleFavorite);
+      listItem.appendChild(favoriteIcon);
+
+      targetList.appendChild(listItem);
+    }
+  </script>
+</body>
+</html>
+

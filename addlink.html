@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Dashboard - Add Link</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Link Dashboard</h1>
+    <nav>
+      <a href="index.html">Home</a> |
+      <a href="addlink.html">Add Link</a>
+    </nav>
+    <h2>Add Link</h2>
+    <div class="link-form">
+      <input type="text" id="linkInput" placeholder="Enter Link URL">
+      <input type="text" id="titleInput" placeholder="Enter Link Title">
+      <button onclick="addLink()">Add Link</button>
+    </div>
+  </div>
+  <script>
+    function addLink() {
+      var linkInput = document.getElementById("linkInput");
+      var titleInput = document.getElementById("titleInput");
+      var link = linkInput.value.trim();
+      var title = titleInput.value.trim();
+
+      if (link !== "" && title !== "") {
+        var links = JSON.parse(localStorage.getItem("links")) || [];
+        links.push({ url: link, title: title });
+        localStorage.setItem("links", JSON.stringify(links));
+        alert("Link added successfully!");
+        linkInput.value = "";
+        titleInput.value = "";
+      } else {
+        alert("Please enter both URL and title.");
+      }
+    }
+  </script>
+</body>
+</html>
+
